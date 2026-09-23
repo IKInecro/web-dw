@@ -1,0 +1,7 @@
+*.swp
+*.swo
+*~
+.fuse_hidden*
+Untitled*
+.DS_Store
+Thumbs.db

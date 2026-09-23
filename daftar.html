@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pendaftaran Lomba — ESTRADA Festival 2026</title>
+<meta name="description" content="Form pendaftaran ESTRADA Festival 2026. Pilih lomba Futsal, Billiard, Gala Suara, Public Speaking, E-Sport.">
+<meta name="theme-color" content="#0f2042">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body class="auth-page">
+<header class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="./index.html" class="nav-logo"><img src="./logo-h.png" alt="MNC University" width="168" height="56"><span>MNCU ESTRADA</span></a>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <a href="./index.html" class="nav-link">Beranda</a>
+      <a href="./daftar.html" class="nav-link active nav-cta">Daftar Lomba <i class="fas fa-arrow-right" style="font-size:.75rem"></i></a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-expanded="false" aria-controls="navMenu" aria-label="Buka menu"><i class="fas fa-bars"></i></button>
+  </div>
+</header>
+
+<div class="auth-container is-compact">
+  <a href="./index.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
+  <div class="ticket reveal">
+    <div class="ticket-main">
+      <div class="ticket-head">
+        <h2>Tiket Pendaftaran</h2>
+        <p>ESTRADA Festival 2026 — tunjukkan semangatmu</p>
+      </div>
+    <form id="daftarForm" class="form-soft" novalidate>
+      <div class="form-group">
+        <label class="form-label" for="nama">Nama Lengkap / Nama Tim</label>
+        <input type="text" id="nama" name="nama" class="form-control" placeholder="Masukkan nama lengkap atau tim" required maxlength="80" autocomplete="name">
+        <span class="form-error" id="err-nama"></span>
+      </div>
+      <div class="form-row">
+        <div class="form-group half">
+          <label class="form-label" for="nim">NIM (Ketua Tim)</label>
+          <input type="text" id="nim" name="nim" class="form-control" placeholder="Masukkan NIM" required pattern="[0-9]{8,15}" inputmode="numeric" autocomplete="off">
+          <span class="form-error" id="err-nim"></span>
+        </div>
+        <div class="form-group half">
+          <label class="form-label" for="prodi">Program Studi</label>
+          <select id="prodi" name="prodi" class="form-control" required>
+            <option value="" disabled selected>-- Pilih Program Studi --</option>
+            <option value="Sistem Informasi">Sistem Informasi</option>
+            <option value="Ilmu Komputer">Ilmu Komputer</option>
+            <option value="Manajemen">Manajemen</option>
+            <option value="Akuntansi">Akuntansi</option>
+            <option value="Ilmu Komunikasi">Ilmu Komunikasi</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+          <span class="form-error" id="err-prodi"></span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Pilih Kategori Lomba <span style="color:var(--muted);font-weight:500">(bisa lebih dari 1)</span></label>
+        <div class="lomba-pill-group" id="lombaBox">
+          <label class="lomba-pill"><input type="checkbox" name="lomba" value="FUTSAL"><span>FUTSAL</span></label>
+          <label class="lomba-pill"><input type="checkbox" name="lomba" value="BILLIARD"><span>BILLIARD</span></label>
+          <label class="lomba-pill"><input type="checkbox" name="lomba" value="GALA SUARA"><span>GALA SUARA</span></label>
+          <label class="lomba-pill"><input type="checkbox" name="lomba" value="PUBLIC SPEAKING"><span>PUBLIC SPEAKING</span></label>
+          <label class="lomba-pill"><input type="checkbox" name="lomba" value="E-SPORT"><span>E-SPORT</span></label>
+        </div>
+        <span class="form-error" id="err-lomba"></span>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="wa">No. WhatsApp Aktif</label>
+        <input type="tel" id="wa" name="whatsapp" class="form-control" placeholder="08xxxxxxxxxx" required pattern="^08[0-9]{8,12}$" inputmode="numeric" autocomplete="tel">
+        <span class="form-hint">Format: 08xxxxxxxxxx (10–14 digit)</span>
+        <span class="form-error" id="err-wa"></span>
+      </div>
+      <button type="submit" id="btnSubmit" class="btn-primary btn-block">Kirim Pendaftaran</button>
+      <p id="formStatus" role="status" aria-live="polite"></p>
+    </form>
+    </div>
+    <div class="ticket-perforation" aria-hidden="true"></div>
+    <div class="ticket-stub">
+      <dl>
+        <div class="stub-row"><dt>Nama / Tim</dt><dd id="sumNama">—</dd></div>
+        <div class="stub-row"><dt>Lomba</dt><dd id="sumLomba">Pilih lomba</dd></div>
+      </dl>
+      <div class="barcode" aria-hidden="true"></div>
+    </div>
+  </div>
+</div>
+
+<!-- success modal with twibbon + WA share -->
+<div class="modal" id="successModal" aria-hidden="true">
+  <div class="modal-backdrop" data-close></div>
+  <div class="modal-card">
+    <div style="font-size:2.2rem;margin-bottom:8px">🎉</div>
+    <h3>Pendaftaran Berhasil!</h3>
+    <p>Panitia akan hubungi via WhatsApp. Sebarkan semangat ESTRADA!</p>
+    <div class="modal-actions">
+      <a href="https://supertwibbon.com/diesnatalismncu2" target="_blank" rel="noopener" class="btn-primary"><i class="fas fa-camera-retro"></i> Pasang Twibbon</a>
+      <a id="waShareBtn" href="#" target="_blank" rel="noopener" class="btn-secondary"><i class="fab fa-whatsapp"></i> Share ke WhatsApp</a>
+      <button class="btn-secondary" data-close>Tutup</button>
+    </div>
+  </div>
+</div>
+<canvas class="confetti-canvas" id="confetti" aria-hidden="true"></canvas>
+
+<script src="./script.js"></script>
+<script>
+// daftar page specific - GAS integration
+const GAS_URL = 'https://script.google.com/macros/s/AKfycbyWJ1N4fRRH0AWSckoio2g7Nm2qKlAJRDj7DFGocQFo6qRP1j_o2YxdxT0n2pSYxfda2g/exec';
+const form = document.getElementById('daftarForm');
+const btn = document.getElementById('btnSubmit');
+const statusEl = document.getElementById('formStatus');
+const modal = document.getElementById('successModal');
+const waBtn = document.getElementById('waShareBtn');
+// stub tiket live summary
+const sumNama=document.getElementById('sumNama'), sumLomba=document.getElementById('sumLomba');
+const updStub=()=>{ sumNama.textContent=document.getElementById('nama').value.trim()||'—'; const l=[...document.querySelectorAll('input[name="lomba"]:checked')].map(i=>i.value); sumLomba.textContent=l.length?l.join(', '):'Pilih lomba'; };
+document.getElementById('nama')?.addEventListener('input',updStub);
+document.querySelectorAll('input[name="lomba"]').forEach(i=>i.addEventListener('change',updStub));
+updStub();
+
+function showErr(id,msg){ const el=document.getElementById(id); if(el) el.textContent=msg||''; }
+function clearErrs(){ ['err-nama','err-nim','err-prodi','err-lomba','err-wa'].forEach(id=>showErr(id,'')); statusEl.textContent=''; statusEl.className=''; }
+
+form?.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  clearErrs();
+  const nama = document.getElementById('nama').value.trim();
+  const nim = document.getElementById('nim').value.trim();
+  const prodi = document.getElementById('prodi').value;
+  const waRaw = document.getElementById('wa').value.trim().replace(/[\s\-]/g,'');
+  const lomba = [...document.querySelectorAll('input[name="lomba"]:checked')].map(i=>i.value);
+
+  let valid=true;
+  if(!nama){ showErr('err-nama','Nama wajib diisi'); valid=false; }
+  else if(nama.length<3){ showErr('err-nama','Minimal 3 karakter'); valid=false; }
+  if(!nim){ showErr('err-nim','NIM wajib'); valid=false; }
+  else if(!/^[0-9]{8,15}$/.test(nim)){ showErr('err-nim','NIM 8-15 digit angka'); valid=false; }
+  if(!prodi){ showErr('err-prodi','Pilih prodi'); valid=false; }
+  if(lomba.length===0){ showErr('err-lomba','Pilih minimal 1 lomba'); valid=false; }
+  if(!waRaw){ showErr('err-wa','WhatsApp wajib'); valid=false; }
+  else if(!/^08[0-9]{8,12}$/.test(waRaw)){ showErr('err-wa','Format 08xxxxxxxxxx (10-14 digit)'); valid=false; }
+  if(!valid) return;
+
+  if(GAS_URL.includes('PASTE_ID')){
+    statusEl.textContent='⚙️ GAS_URL belum diisi. Hubungi admin untuk set Google Apps Script URL di daftar.html';
+    statusEl.className='err';
+    return;
+  }
+
+  const payload = { nama, nim, prodi, lomba, whatsapp: waRaw, ua: navigator.userAgent, ts: new Date().toISOString() };
+  btn.disabled=true; const oldText=btn.textContent; btn.textContent='Mengirim...';
+  try{
+    // ponytail: text/plain avoids CORS preflight on GAS
+    const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload) });
+    const text = await res.text();
+    let j; try{ j=JSON.parse(text)}catch{ j={ok: res.ok, raw:text}}
+    if(!j.ok) throw new Error(j.error || 'Gagal menyimpan');
+    statusEl.textContent='✅ Pendaftaran terkirim!';
+    statusEl.className='ok';
+    form.reset();
+    updStub();
+    // WA share link
+    const shareText = `Aku sudah daftar ESTRADA Festival 2026! 🎉\nTim: ${nama}\nLomba: ${lomba.join(', ')}\nYuk daftar juga di ${location.origin}${location.pathname.replace('daftar.html','')} — Dies Natalis ke-5 MNC University!`;
+    waBtn.href = 'https://wa.me/?text='+encodeURIComponent(shareText);
+    openModal();
+    fireConfetti();
+  }catch(err){
+    statusEl.textContent='❌ '+(err.message||'Gagal')+' — coba lagi.';
+    statusEl.className='err';
+  }finally{
+    btn.disabled=false; btn.textContent=oldText;
+  }
+});
+
+function openModal(){ modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false'); }
+function closeModal(){ modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); }
+modal?.addEventListener('click',e=>{ if(e.target.hasAttribute('data-close')) closeModal(); });
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+// ponytail: ultra minimal confetti — 80 particles, canvas 2D, no lib
+function fireConfetti(){
+  const c=document.getElementById('confetti'); if(!c) return;
+  const ctx=c.getContext('2d'); const W=c.width=innerWidth, H=c.height=innerHeight;
+  const colors=['#b89728','#d4af37','#0f2042','#1e3c72','#f4ecdf'];
+  const parts=[...Array(80)].map(()=>({x:Math.random()*W,y:-20-Math.random()*200,vx:(Math.random()-.5)*6,vy:2+Math.random()*4,r:4+Math.random()*6,c:colors[Math.floor(Math.random()*5)],a:1,spin:Math.random()*0.2-0.1,ang:0}));
+  let raf; (function loop(){
+    ctx.clearRect(0,0,W,H);
+    let alive=false;
+    parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=0.08; p.ang+=p.spin; p.a-=0.003; if(p.a>0&&p.y<H+20){ alive=true; ctx.save(); ctx.globalAlpha=Math.max(0,p.a); ctx.translate(p.x,p.y); ctx.rotate(p.ang); ctx.fillStyle=p.c; ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*0.6); ctx.restore(); }});
+    if(alive) raf=requestAnimationFrame(loop); else ctx.clearRect(0,0,W,H);
+  })();
+  setTimeout(()=>cancelAnimationFrame(raf),4000);
+  // ponytail: canvas auto clear after
+}
+</script>
+</body>
+</html>
