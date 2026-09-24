@@ -11,6 +11,15 @@ function doPost(e) {
     if (!e || !e.postData || !e.postData.contents) return json_({ ok: false, error: 'Empty body' });
     const data = JSON.parse(e.postData.contents);
 
+    // turnstile: verify human FIRST, reject before saving anything
+    const tk = String(data.cfToken || '');
+    if (!tk) return json_({ ok: false, error: 'Verifikasi manusia wajib' });
+    const sec = PropertiesService.getScriptProperties().getProperty('TURNSTILE_SECRET');
+    if (!sec) return json_({ ok: false, error: 'Server belum set TURNSTILE_SECRET' });
+    const vr = UrlFetchApp.fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', { method: 'post', payload: { secret: sec, response: tk } });
+    const vd = JSON.parse(vr.getContentText());
+    if (!vd.success) return json_({ ok: false, error: 'Verifikasi gagal, coba lagi' });
+
     // server validation — mirror frontend
     if (!data.nama || String(data.nama).trim().length < 3) return json_({ ok: false, error: 'Nama minimal 3 karakter' });
     if (!data.nim || !/^[0-9]{8,15}$/.test(String(data.nim).trim())) return json_({ ok: false, error: 'NIM 8-15 digit' });

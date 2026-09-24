@@ -5,6 +5,7 @@
 2. Extensions → Apps Script → hapus `Code.gs` default → paste `Code.gs` ini → ganti `SHEET_ID`
 3. Deploy → New deployment → Web app → Execute as: Me → Who has access: **Anyone** → Deploy → Copy URL `https://script.google.com/macros/s/XXXX/exec`
 4. Paste URL ke GAS_URL di daftar.html (`const GAS_URL = '...'`)
+5. Turnstile: Apps Script → Project Settings (ikon gerigi) → Script Properties → Add property: `TURNSTILE_SECRET` = secretkey → Save. Tanpa ini semua submit ditolak.
 ## Test
 - Apps Script → Run `testPost` → Authorize → cek Sheet muncul baris
 - Buka `daftar.html` → isi form → submit → cek Sheet + modal sukses

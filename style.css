@@ -420,3 +420,5 @@ img{max-width:100%;display:block}
 /* spinner kecil di tombol submit */
 .dot-spinner--btn{--uib-size:1.15rem;--uib-color:var(--primary)}
 .btn-primary.is-loading{pointer-events:none}
+/* turnstile center */
+.cf-turnstile{display:flex;justify-content:center;margin:4px 0}
