@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://cdnjs.cloudflare.com">
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=tsLoad" async defer></script>
 <link rel="stylesheet" href="./style.css?v=7">
 </head>
 <body class="auth-page">
@@ -84,8 +84,8 @@
         <span class="form-hint">Format: 08xxxxxxxxxx (10–14 digit)</span>
         <span class="form-error" id="err-wa"></span>
       </div>
-      <div class="cf-turnstile" data-sitekey="0x4AAAAAAFCWmZ5gHDiXzCXd" data-callback="tsOk" data-expired-callback="tsExp"></div>
-      <button type="submit" id="btnSubmit" class="btn-primary btn-block" disabled>Kirim Pendaftaran</button>
+      <div class="cf-turnstile" id="tsBox"></div>
+      <button type="submit" id="btnSubmit" class="btn-primary btn-block">Kirim Pendaftaran</button>
       <p id="formStatus" role="status" aria-live="polite"></p>
     </form>
     </div>
@@ -124,9 +124,13 @@ const btn = document.getElementById('btnSubmit');
 const statusEl = document.getElementById('formStatus');
 const modal = document.getElementById('successModal');
 const SPIN = '<span class="dot-spinner dot-spinner--btn" aria-hidden="true">' + '<span class="dot-spinner__dot"></span>'.repeat(8) + '</span><span>Mengirim...</span>';
-let cfToken = '';
-function tsOk(t){ cfToken = t; btn.disabled = false; }
-function tsExp(){ cfToken = ''; btn.disabled = true; }
+let cfToken = '', tsWid = null, sending = false, pending = null;
+function tsLoad(){
+  if(!window.turnstile) return;
+  tsWid = turnstile.render('#tsBox', { sitekey:'0x4AAAAAAFCWmZ5gHDiXzCXd', execution:'execute', appearance:'interaction-only', callback:tsOk, 'expired-callback':tsExp });
+}
+function tsOk(t){ cfToken = t; if(pending && !sending){ const d = pending; pending = null; doSend(d); } }
+function tsExp(){ cfToken = ''; }
 // stub tiket live summary
 const sumNama=document.getElementById('sumNama'), sumLomba=document.getElementById('sumLomba');
 const updStub=()=>{ sumNama.textContent=document.getElementById('nama').value.trim()||'—'; const l=[...document.querySelectorAll('input[name="lomba"]:checked')].map(i=>i.value); sumLomba.textContent=l.length?l.join(', '):'Pilih lomba'; };
@@ -137,8 +141,9 @@ updStub();
 function showErr(id,msg){ const el=document.getElementById(id); if(el) el.textContent=msg||''; }
 function clearErrs(){ ['err-nama','err-nim','err-prodi','err-lomba','err-wa'].forEach(id=>showErr(id,'')); statusEl.textContent=''; statusEl.className=''; }
 
-form?.addEventListener('submit', async (e)=>{
+form?.addEventListener('submit', (e)=>{
   e.preventDefault();
+  if(sending) return;
   clearErrs();
   const nama = document.getElementById('nama').value.trim();
   const nim = document.getElementById('nim').value.trim();
@@ -156,11 +161,6 @@ form?.addEventListener('submit', async (e)=>{
   if(!waRaw){ showErr('err-wa','WhatsApp wajib'); valid=false; }
   else if(!/^08[0-9]{8,12}$/.test(waRaw)){ showErr('err-wa','Format 08xxxxxxxxxx (10-14 digit)'); valid=false; }
   if(!valid) return;
-  if(!cfToken){
-    statusEl.textContent='Selesaikan verifikasi manusia dulu.';
-    statusEl.className='err';
-    return;
-  }
 
   if(GAS_URL.includes('PASTE_ID')){
     statusEl.textContent='GAS_URL belum diisi. Hubungi admin.';
@@ -168,11 +168,24 @@ form?.addEventListener('submit', async (e)=>{
     return;
   }
 
-  const payload = { nama, nim, prodi, lomba, whatsapp: waRaw, cfToken, ua: navigator.userAgent, ts: new Date().toISOString() };
+  pending = { nama, nim, prodi, lomba, whatsapp: waRaw, ua: navigator.userAgent, ts: new Date().toISOString() };
+  if(!cfToken){
+    statusEl.textContent='Memverifikasi manusia...';
+    statusEl.className='';
+    if(window.turnstile && tsWid !== null) turnstile.execute(tsWid);
+    else { statusEl.textContent='Widget verifikasi belum siap, coba lagi.'; statusEl.className='err'; }
+    return;
+  }
+  const d = pending; pending = null; doSend(d);
+});
+
+async function doSend(d){
+  sending = true;
+  d.cfToken = cfToken;
   btn.disabled=true; const oldHTML=btn.innerHTML; btn.innerHTML=SPIN; btn.classList.add('is-loading');
   try{
     // ponytail: text/plain avoids CORS preflight on GAS
-    const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload) });
+    const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(d) });
     const text = await res.text();
     let j; try{ j=JSON.parse(text)}catch{ j={ok: res.ok, raw:text}}
     if(!j.ok) throw new Error(j.error || 'Gagal menyimpan');
@@ -187,10 +200,10 @@ form?.addEventListener('submit', async (e)=>{
     statusEl.className='err';
   }finally{
     btn.disabled=false; btn.innerHTML=oldHTML; btn.classList.remove('is-loading');
-    cfToken=''; btn.disabled=true;
-    if(window.turnstile) turnstile.reset();
+    sending=false; cfToken='';
+    if(window.turnstile && tsWid !== null) turnstile.reset(tsWid);
   }
-});
+}
 
 function openModal(){ modal.classList.add('is-open'); modal.setAttribute('aria-hidden','false'); }
 function closeModal(){ modal.classList.remove('is-open'); modal.setAttribute('aria-hidden','true'); }
