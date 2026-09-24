@@ -1,7 +1,8 @@
 {
   "cleanUrls": true,
   "rewrites": [
-    { "source": "/daftar", "destination": "/daftar.html" }
+    { "source": "/daftar", "destination": "/daftar.html" },
+    { "source": "/twibbon", "destination": "/twibbon.html" }
   ],
   "headers": [
     {

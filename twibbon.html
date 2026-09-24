@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twibbon — ESTRADA Festival 2026</title>
+<meta name="description" content="Buat twibbon ESTRADA Festival 2026. Upload foto, atur posisi, besar, rotasi, unduh.">
+<meta name="theme-color" content="#0f2042">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="./style.css">
+</head>
+<body class="auth-page">
+<header class="navbar" id="navbar">
+  <div class="nav-container">
+    <a href="./index.html" class="nav-logo"><img src="./logo-h.png" alt="MNC University" width="168" height="56"><span>MNCU ESTRADA</span></a>
+    <nav class="nav-menu" id="navMenu" aria-label="Primary">
+      <a href="./index.html" class="nav-link">Beranda</a>
+      <a href="./daftar.html" class="nav-link">Daftar Lomba</a>
+      <a href="./twibbon.html" class="nav-link active">Twibbon</a>
+    </nav>
+    <button class="hamburger" id="hamburger" aria-expanded="false" aria-controls="navMenu" aria-label="Buka menu"><i class="fas fa-bars"></i></button>
+  </div>
+</header>
+
+<div class="auth-container">
+  <a href="./index.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
+  <div class="twb-card reveal">
+    <div class="ticket-head">
+      <h2>Twibbon Resmi</h2>
+      <p>Upload fotomu, geser untuk posisi, atur besar dan rotasi, lalu unduh</p>
+    </div>
+    <canvas id="twCanvas" class="twb-canvas" width="1080" height="1350" aria-label="Pratinjau twibbon"></canvas>
+    <div class="twb-controls">
+      <label class="btn-secondary btn-block twb-upload" for="twUpload"><i class="fas fa-upload"></i> Pilih Foto</label>
+      <input type="file" id="twUpload" accept="image/*" hidden>
+      <div class="twb-row">
+        <label for="twScale">Besar</label>
+        <input type="range" id="twScale" min="50" max="300" value="100">
+        <span id="twScaleVal">100%</span>
+      </div>
+      <div class="twb-row">
+        <label for="twRot">Rotasi</label>
+        <input type="range" id="twRot" min="-180" max="180" value="0">
+        <span id="twRotVal">0°</span>
+      </div>
+      <div class="twb-actions">
+        <button id="twReset" class="btn-secondary" type="button"><i class="fas fa-rotate-left"></i> Atur Ulang</button>
+        <button id="twDownload" class="btn-primary" type="button" disabled><i class="fas fa-download"></i> Unduh Twibbon</button>
+      </div>
+      <p id="twStatus" role="status" aria-live="polite"></p>
+    </div>
+  </div>
+  <div class="twb-card reveal">
+    <div class="ticket-head">
+      <h2>Contoh Hasil</h2>
+      <p>Twibbon resmi Dies Natalis ke-5 MNC University</p>
+    </div>
+    <img src="./twibbon-for-display.png" alt="Contoh twibbon ESTRADA Festival" class="twb-sample" loading="lazy" width="1080" height="1350">
+  </div>
+</div>
+
+<script src="./script.js"></script>
+<script>
+// twibbon editor — canvas 2D, no lib
+const cv = document.getElementById('twCanvas'), ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+const frame = new Image(); frame.src = './twibbon-frame.png';
+let photo = null, base = 1, scale = 1, rot = 0, px = W/2, py = H/2;
+const dlBtn = document.getElementById('twDownload');
+const statusEl = document.getElementById('twStatus');
+
+function draw(){
+  ctx.clearRect(0,0,W,H);
+  if(photo){
+    const s = base * scale;
+    ctx.save(); ctx.translate(px,py); ctx.rotate(rot*Math.PI/180); ctx.scale(s,s);
+    ctx.drawImage(photo, -photo.width/2, -photo.height/2);
+    ctx.restore();
+  } else {
+    ctx.fillStyle = '#102a5a'; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = 'rgba(255,255,255,.75)'; ctx.font = '600 44px "Plus Jakarta Sans",sans-serif';
+    ctx.textAlign = 'center'; ctx.fillText('Pilih foto untuk mulai', W/2, H/2);
+  }
+  if(frame.complete && frame.naturalWidth) ctx.drawImage(frame,0,0,W,H);
+}
+frame.onload = draw; draw();
+
+document.getElementById('twUpload').addEventListener('change', e=>{
+  const f = e.target.files[0]; if(!f) return;
+  const url = URL.createObjectURL(f);
+  const img = new Image();
+  img.onload = ()=>{
+    photo = img; base = Math.max(W/img.width, H/img.height);
+    scale = 1; rot = 0; px = W/2; py = H/2;
+    document.getElementById('twScale').value = 100;
+    document.getElementById('twRot').value = 0;
+    syncLabels(); dlBtn.disabled = false;
+    statusEl.textContent = ''; statusEl.className = '';
+    URL.revokeObjectURL(url); draw();
+  };
+  img.onerror = ()=>{ statusEl.textContent = 'File bukan gambar. Coba file lain.'; statusEl.className = 'err'; };
+  img.src = url;
+});
+
+const scEl = document.getElementById('twScale'), rotEl = document.getElementById('twRot');
+function syncLabels(){
+  document.getElementById('twScaleVal').textContent = scEl.value + '%';
+  document.getElementById('twRotVal').textContent = rotEl.value + '°';
+}
+scEl.addEventListener('input', ()=>{ scale = scEl.value/100; syncLabels(); draw(); });
+rotEl.addEventListener('input', ()=>{ rot = +rotEl.value; syncLabels(); draw(); });
+
+// geser foto langsung di canvas
+let drag = null;
+function toCanvas(e){ const r = cv.getBoundingClientRect(); return { x:(e.clientX-r.left)*W/r.width, y:(e.clientY-r.top)*H/r.height }; }
+cv.addEventListener('pointerdown', e=>{ if(!photo) return; const p = toCanvas(e); drag = { dx:p.x-px, dy:p.y-py }; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e=>{ if(!drag) return; const p = toCanvas(e); px = p.x-drag.dx; py = p.y-drag.dy; draw(); });
+cv.addEventListener('pointerup', ()=>{ drag = null; });
+cv.addEventListener('pointercancel', ()=>{ drag = null; });
+
+document.getElementById('twReset').addEventListener('click', ()=>{
+  scale = 1; rot = 0; px = W/2; py = H/2;
+  scEl.value = 100; rotEl.value = 0; syncLabels(); draw();
+});
+
+dlBtn.addEventListener('click', ()=>{
+  if(!photo) return;
+  cv.toBlob(b=>{
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(b);
+    a.download = 'twibbon-estrada-2026.png';
+    a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
+  }, 'image/png');
+});
+</script>
+</body>
+</html>
