@@ -16,8 +16,9 @@ function doPost(e) {
     if (!data.nim || !/^[0-9]{8,15}$/.test(String(data.nim).trim())) return json_({ ok: false, error: 'NIM 8-15 digit' });
     if (!data.prodi) return json_({ ok: false, error: 'Prodi wajib' });
     if (!data.lomba || !data.lomba.length) return json_({ ok: false, error: 'Pilih minimal 1 lomba' });
-    const wa = String(data.whatsapp || '').replace(/[\s\-]/g, '');
-    if (!/^08[0-9]{8,12}$/.test(wa)) return json_({ ok: false, error: 'WhatsApp harus 08xxxxxxxxxx' });
+    let wa = String(data.whatsapp || '').replace(/[\s\-]/g, '');
+    if(/^08/.test(wa)) wa = '+62'+wa.slice(2); else if(/^62/.test(wa)) wa = '+'+wa;
+    if (!/^\+62[0-9]{8,12}$/.test(wa)) return json_({ ok: false, error: 'WhatsApp harus +62xxxxxxxxxx' });
 
     const allowed = ['FUTSAL','BILLIARD','GALA SUARA','PUBLIC SPEAKING','E-SPORT'];
     const lombaClean = data.lomba.filter(v => allowed.includes(String(v).toUpperCase())).map(v => String(v).toUpperCase());

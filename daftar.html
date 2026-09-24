@@ -50,12 +50,18 @@
           <label class="form-label" for="prodi">Program Studi</label>
           <select id="prodi" name="prodi" class="form-control" required>
             <option value="" disabled selected>-- Pilih Program Studi --</option>
-            <option value="Sistem Informasi">Sistem Informasi</option>
-            <option value="Ilmu Komputer">Ilmu Komputer</option>
-            <option value="Manajemen">Manajemen</option>
-            <option value="Akuntansi">Akuntansi</option>
-            <option value="Ilmu Komunikasi">Ilmu Komunikasi</option>
-            <option value="Lainnya">Lainnya</option>
+            <optgroup label="Fakultas Bisnis dan Keuangan">
+              <option value="S1 Manajemen">S1 Manajemen</option>
+              <option value="S1 Akuntansi">S1 Akuntansi</option>
+              <option value="S1 Pendidikan Matematika">S1 Pendidikan Matematika</option>
+            </optgroup>
+            <optgroup label="Fakultas Industri Kreatif">
+              <option value="S1 Sains Komunikasi">S1 Sains Komunikasi</option>
+              <option value="S1 Desain Komunikasi Visual (DKV)">S1 Desain Komunikasi Visual (DKV)</option>
+              <option value="S1 Sistem Informasi">S1 Sistem Informasi</option>
+              <option value="S1 Ilmu Komputer">S1 Ilmu Komputer</option>
+              <option value="S1 Pendidikan Bahasa Inggris">S1 Pendidikan Bahasa Inggris</option>
+            </optgroup>
           </select>
           <span class="form-error" id="err-prodi"></span>
         </div>
@@ -73,8 +79,8 @@
       </div>
       <div class="form-group">
         <label class="form-label" for="wa">No. WhatsApp Aktif</label>
-        <input type="tel" id="wa" name="whatsapp" class="form-control" placeholder="08xxxxxxxxxx" required pattern="^08[0-9]{8,12}$" inputmode="numeric" autocomplete="tel">
-        <span class="form-hint">Format: 08xxxxxxxxxx (10–14 digit)</span>
+        <input type="tel" id="wa" name="whatsapp" class="form-control" placeholder="+628xxxxxxxxxx" required pattern="^\+62[0-9]{8,12}$" inputmode="tel" autocomplete="tel">
+        <span class="form-hint">Format: +62xxxxxxxxxx (ketik 08 otomatis jadi +62)</span>
         <span class="form-error" id="err-wa"></span>
       </div>
       <button type="submit" id="btnSubmit" class="btn-primary btn-block">Kirim Pendaftaran</button>
@@ -132,7 +138,8 @@ form?.addEventListener('submit', async (e)=>{
   const nama = document.getElementById('nama').value.trim();
   const nim = document.getElementById('nim').value.trim();
   const prodi = document.getElementById('prodi').value;
-  const waRaw = document.getElementById('wa').value.trim().replace(/[\s\-]/g,'');
+  let waRaw = document.getElementById('wa').value.trim().replace(/[\s\-]/g,'');
+  if(/^08/.test(waRaw)) waRaw = '+62'+waRaw.slice(2); else if(/^62/.test(waRaw)) waRaw = '+'+waRaw;
   const lomba = [...document.querySelectorAll('input[name="lomba"]:checked')].map(i=>i.value);
 
   let valid=true;
@@ -143,7 +150,7 @@ form?.addEventListener('submit', async (e)=>{
   if(!prodi){ showErr('err-prodi','Pilih prodi'); valid=false; }
   if(lomba.length===0){ showErr('err-lomba','Pilih minimal 1 lomba'); valid=false; }
   if(!waRaw){ showErr('err-wa','WhatsApp wajib'); valid=false; }
-  else if(!/^08[0-9]{8,12}$/.test(waRaw)){ showErr('err-wa','Format 08xxxxxxxxxx (10-14 digit)'); valid=false; }
+  else if(!/^\+62[0-9]{8,12}$/.test(waRaw)){ showErr('err-wa','Format +62xxxxxxxxxx'); valid=false; }
   if(!valid) return;
 
   if(GAS_URL.includes('PASTE_ID')){
