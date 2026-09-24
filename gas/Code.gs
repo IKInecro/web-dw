@@ -35,7 +35,8 @@ function doPost(e) {
       sh.getRange(1,1,1,7).setFontWeight('bold').setBackground('#0f2042').setFontColor('#ffffff');
       sh.setFrozenRows(1);
     }
-    sh.appendRow([new Date(), String(data.nama).trim(), String(data.nim).trim(), String(data.prodi), lombaClean.join(', '), wa, String(data.ua||'').slice(0,300)]);
+    // ponytail: prefix ' agar Sheets simpan sebagai teks (nol depan tak hilang)
+    sh.appendRow([new Date(), String(data.nama).trim(), "'"+String(data.nim).trim(), String(data.prodi), lombaClean.join(', '), "'"+wa, String(data.ua||'').slice(0,300)]);
 
     return json_({ ok: true });
   } catch (err) {
