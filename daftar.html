@@ -91,16 +91,15 @@
   </div>
 </div>
 
-<!-- success modal with twibbon + WA share -->
+<!-- success modal -->
 <div class="modal" id="successModal" aria-hidden="true">
   <div class="modal-backdrop" data-close></div>
   <div class="modal-card">
-    <div style="font-size:2.2rem;margin-bottom:8px">🎉</div>
+    <div class="modal-icon"><i class="fas fa-circle-check"></i></div>
     <h3>Pendaftaran Berhasil!</h3>
     <p>Panitia akan hubungi via WhatsApp. Sebarkan semangat ESTRADA!</p>
     <div class="modal-actions">
       <a href="https://supertwibbon.com/diesnatalismncu2" target="_blank" rel="noopener" class="btn-primary"><i class="fas fa-camera-retro"></i> Pasang Twibbon</a>
-      <a id="waShareBtn" href="#" target="_blank" rel="noopener" class="btn-secondary"><i class="fab fa-whatsapp"></i> Share ke WhatsApp</a>
       <button class="btn-secondary" data-close>Tutup</button>
     </div>
   </div>
@@ -115,7 +114,7 @@ const form = document.getElementById('daftarForm');
 const btn = document.getElementById('btnSubmit');
 const statusEl = document.getElementById('formStatus');
 const modal = document.getElementById('successModal');
-const waBtn = document.getElementById('waShareBtn');
+const SPIN = '<span class="dot-spinner dot-spinner--btn" aria-hidden="true">' + '<span class="dot-spinner__dot"></span>'.repeat(8) + '</span><span>Mengirim...</span>';
 // stub tiket live summary
 const sumNama=document.getElementById('sumNama'), sumLomba=document.getElementById('sumLomba');
 const updStub=()=>{ sumNama.textContent=document.getElementById('nama').value.trim()||'—'; const l=[...document.querySelectorAll('input[name="lomba"]:checked')].map(i=>i.value); sumLomba.textContent=l.length?l.join(', '):'Pilih lomba'; };
@@ -147,33 +146,30 @@ form?.addEventListener('submit', async (e)=>{
   if(!valid) return;
 
   if(GAS_URL.includes('PASTE_ID')){
-    statusEl.textContent='⚙️ GAS_URL belum diisi. Hubungi admin untuk set Google Apps Script URL di daftar.html';
+    statusEl.textContent='GAS_URL belum diisi. Hubungi admin.';
     statusEl.className='err';
     return;
   }
 
   const payload = { nama, nim, prodi, lomba, whatsapp: waRaw, ua: navigator.userAgent, ts: new Date().toISOString() };
-  btn.disabled=true; const oldText=btn.textContent; btn.textContent='Mengirim...';
+  btn.disabled=true; const oldHTML=btn.innerHTML; btn.innerHTML=SPIN; btn.classList.add('is-loading');
   try{
     // ponytail: text/plain avoids CORS preflight on GAS
     const res = await fetch(GAS_URL, { method:'POST', body: JSON.stringify(payload) });
     const text = await res.text();
     let j; try{ j=JSON.parse(text)}catch{ j={ok: res.ok, raw:text}}
     if(!j.ok) throw new Error(j.error || 'Gagal menyimpan');
-    statusEl.textContent='✅ Pendaftaran terkirim!';
+    statusEl.textContent='Pendaftaran terkirim!';
     statusEl.className='ok';
     form.reset();
     updStub();
-    // WA share link
-    const shareText = `Aku sudah daftar ESTRADA Festival 2026! 🎉\nTim: ${nama}\nLomba: ${lomba.join(', ')}\nYuk daftar juga di ${location.origin}${location.pathname.replace('daftar.html','')} — Dies Natalis ke-5 MNC University!`;
-    waBtn.href = 'https://wa.me/?text='+encodeURIComponent(shareText);
     openModal();
     fireConfetti();
   }catch(err){
-    statusEl.textContent='❌ '+(err.message||'Gagal')+' — coba lagi.';
+    statusEl.textContent=(err.message||'Gagal')+' — coba lagi.';
     statusEl.className='err';
   }finally{
-    btn.disabled=false; btn.textContent=oldText;
+    btn.disabled=false; btn.innerHTML=oldHTML; btn.classList.remove('is-loading');
   }
 });
 
