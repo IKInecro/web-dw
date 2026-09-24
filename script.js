@@ -1,4 +1,4 @@
-// ponytail: hermes-like smooth + parallax + vercel composition, no deps
+// ponytail: nav + reveal + parallax + countdown, smooth via native CSS, no deps
 (() => {
   const nav = document.getElementById('navMenu');
   const btn = document.getElementById('hamburger');
@@ -11,7 +11,6 @@
     btn.setAttribute('aria-expanded', String(open));
     const icon = btn.querySelector('i');
     if (icon) { icon.classList.toggle('fa-bars', !open); icon.classList.toggle('fa-xmark', open); }
-    document.body.style.overflow = open ? 'hidden' : '';
   });
   const closeNav = () => {
     nav?.classList.remove('is-open');
@@ -19,7 +18,6 @@
     btn?.setAttribute('aria-expanded', 'false');
     const icon = btn?.querySelector('i');
     if (icon) { icon.classList.add('fa-bars'); icon.classList.remove('fa-xmark'); }
-    document.body.style.overflow = '';
   };
   nav?.querySelectorAll('a').forEach(a => a.addEventListener('click', closeNav));
   document.addEventListener('click', e => { if (!nav?.contains(e.target) && !btn?.contains(e.target)) closeNav(); });
@@ -30,84 +28,9 @@
   addEventListener('scroll', onScrollBar, { passive: true });
   onScrollBar();
 
-  // hermes-like smooth scroll — tiny lerp without lib (ponytail: no lenis dep, 20 lines)
+  // smooth scroll: native CSS only (scroll-behavior + scroll-padding-top) — no JS hijack, no jank
   // respect prefers-reduced-motion
   const prefersReduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  let useSmooth = !prefersReduced && innerWidth > 768; // mobile native
-  if (useSmooth) {
-    document.documentElement.classList.add('lenis');
-    let target = scrollY, cur = scrollY, rafId = null, ticking = false;
-    const ease = 0.075; // hermes feel: lower = smoother
-    const onWheel = e => {
-      // let native scroll handle but lerp via target
-      target = Math.min(Math.max(0, target + e.deltaY), document.documentElement.scrollHeight - innerHeight);
-      if (!ticking) { ticking = true; rafId = requestAnimationFrame(loop); }
-    };
-    // hijack wheel only for desktop hermes feel, keep touch native
-    // ponytail: optional — if user complains lag, comment next line to disable
-    // Using passive wheel + lerp via scrollTo
-    let loop = () => {
-      cur += (target - cur) * ease;
-      if (Math.abs(target - cur) < 0.5) { cur = target; ticking = false; cancelAnimationFrame(rafId); }
-      else rafId = requestAnimationFrame(loop);
-      scrollTo(0, cur);
-      // update parallax & reveal in same tick for perf
-      updateParallax(cur);
-    };
-    // Sync target with native scroll (mouse wheel, keyboard, scrollbar)
-    addEventListener('scroll', () => { if (!ticking) target = cur = scrollY; }, { passive: true });
-    // Note: we don't preventDefault wheel — we just lerp target; native scroll still fires but we smooth it via rAF
-    // For true hermes, uncomment to use virtual scroll:
-    // addEventListener('wheel', onWheel, { passive: false });
-    // Instead lightweight: just smooth anchor clicks via animate
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', e => {
-        const id = a.getAttribute('href');
-        if (id.length > 1) {
-          const el = document.querySelector(id);
-          if (el) {
-            e.preventDefault();
-            const top = el.getBoundingClientRect().top + scrollY - 72;
-            smoothTo(top);
-          }
-        }
-      });
-    });
-    function smoothTo(to) {
-      target = to; ticking = true;
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(function animate(){ cur += (target - cur)*0.09; scrollTo(0,cur); if(Math.abs(target-cur)>0.5) requestAnimationFrame(animate); else { cur=target; scrollTo(0,cur); ticking=false; } });
-    }
-  }
-  // ultra v2: Jelajahi Festival smooth for all devices (even mobile) — hermes offset
-  if (!prefersReduced) {
-    const jelajahi = document.querySelector('a[href="#tema"]');
-    if (jelajahi && !useSmooth) {
-      jelajahi.addEventListener('click', e => {
-        e.preventDefault();
-        const el = document.getElementById('tema');
-        if (!el) return;
-        const top = el.getBoundingClientRect().top + scrollY - 76;
-        // simple rAF lerp without lenis deps
-        let cur2 = scrollY, tgt = top;
-        (function anim(){ cur2 += (tgt - cur2)*0.09; scrollTo(0,cur2); if(Math.abs(tgt-cur2)>0.5) requestAnimationFrame(anim); else scrollTo(0,tgt); })();
-      });
-    }
-    // fallback for any hash link when not lenis
-    if (!useSmooth) {
-      document.querySelectorAll('a[href^="#"]').forEach(a=>{
-        if(a.getAttribute('href')==="#tema") return; // already handled
-        a.addEventListener('click', e=>{
-          const id=a.getAttribute('href'); if(id.length<=1) return;
-          const el=document.querySelector(id); if(!el) return;
-          e.preventDefault();
-          const top=el.getBoundingClientRect().top+scrollY-76;
-          let cur2=scrollY, tgt=top;
-          (function anim(){ cur2+=(tgt-cur2)*0.09; scrollTo(0,cur2); if(Math.abs(tgt-cur2)>0.5) requestAnimationFrame(anim); else scrollTo(0,tgt); })();
-        });
-      });
-    }
-  }
 
   // reveal on scroll — single observer
   const io = new IntersectionObserver(es => es.forEach(e => {
