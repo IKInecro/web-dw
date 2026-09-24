@@ -366,7 +366,7 @@ img{max-width:100%;display:block}
   .ticket-perforation::before{left:-10px}
   .ticket-perforation::after{right:-10px}
   .ticket-stub{padding:14px 16px 16px}
-  .twb-card{margin:0 8px 16px;width:calc(100% - 16px);padding:20px 16px}
+  .twb-layout .twb-card{margin:0 8px 16px;width:calc(100% - 16px);padding:20px 16px}
   .twb-layout{grid-template-columns:1fr;max-width:560px;gap:12px}
   .twb-layout>*{min-width:0}
   .twb-preview{margin-bottom:0}
