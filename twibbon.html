@@ -16,7 +16,7 @@
 <body class="auth-page">
 <header class="navbar" id="navbar">
   <div class="nav-container">
-    <a href="./index.html" class="nav-logo"><img src="./logo-h.png" alt="MNC University" width="168" height="56"><span>MNCU ESTRADA</span></a>
+    <a href="./index.html" class="nav-logo"><img src="./logo-h.webp" alt="MNC University" width="168" height="56"><span>MNCU ESTRADA</span></a>
     <nav class="nav-menu" id="navMenu" aria-label="Primary">
       <a href="./index.html" class="nav-link">Beranda</a>
       <a href="./daftar.html" class="nav-link">Daftar Lomba</a>
@@ -64,7 +64,7 @@
 // twibbon editor — canvas 2D, no lib
 const cv = document.getElementById('twCanvas'), ctx = cv.getContext('2d');
 const W = cv.width, H = cv.height;
-const frame = new Image(); frame.src = './twibbon-frame.png';
+const frame = new Image(); frame.src = './twibbon-frame.webp';
 let photo = null, base = 1, scale = 1, rot = 0, px = W/2, py = H/2;
 const dlBtn = document.getElementById('twDownload');
 const statusEl = document.getElementById('twStatus');
@@ -128,7 +128,7 @@ dlBtn.addEventListener('click', ()=>{
   cv.toBlob(b=>{
     const a = document.createElement('a');
     a.href = URL.createObjectURL(b);
-    a.download = 'twibbon-estrada-2026.png';
+    a.download = 'TWIBON ESTRADA FESTIVAL 2026.png';
     a.click();
     setTimeout(()=>URL.revokeObjectURL(a.href), 4000);
   }, 'image/png');
