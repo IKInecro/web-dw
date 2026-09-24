@@ -28,13 +28,16 @@
 
 <div class="auth-container">
   <a href="./index.html" class="back-link"><i class="fas fa-arrow-left"></i> Kembali ke Beranda</a>
-  <div class="twb-card reveal">
-    <div class="ticket-head">
-      <h2>Twibbon Resmi</h2>
-      <p>Upload fotomu, geser untuk posisi, atur besar dan rotasi, lalu unduh</p>
+  <div class="twb-layout reveal">
+    <div class="twb-card twb-preview">
+      <canvas id="twCanvas" class="twb-canvas" width="1080" height="1350" aria-label="Pratinjau twibbon"></canvas>
     </div>
-    <canvas id="twCanvas" class="twb-canvas" width="1080" height="1350" aria-label="Pratinjau twibbon"></canvas>
-    <div class="twb-controls">
+    <div class="twb-card twb-panel">
+      <div class="ticket-head">
+        <h2>Twibbon Resmi</h2>
+        <p>Upload fotomu, geser untuk posisi, atur besar dan rotasi, lalu unduh</p>
+      </div>
+      <div class="twb-controls">
       <label class="btn-secondary btn-block twb-upload" for="twUpload"><i class="fas fa-upload"></i> Pilih Foto</label>
       <input type="file" id="twUpload" accept="image/*" hidden>
       <div class="twb-row">
@@ -52,6 +55,7 @@
         <button id="twDownload" class="btn-primary" type="button" disabled><i class="fas fa-download"></i> Unduh Twibbon</button>
       </div>
       <p id="twStatus" role="status" aria-live="polite"></p>
+      </div>
     </div>
   </div>
 
